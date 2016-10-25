@@ -5,6 +5,7 @@
 using namespace std;
 
 // Create an empty image
+
 Image::Image()
 {
 	H = 0;
