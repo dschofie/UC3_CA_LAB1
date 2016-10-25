@@ -2,6 +2,7 @@
 #include <fstream>
 #include <stdlib.h>
 #include <cstdlib>
+#include <cmath>
 
 #include "ARCfmt.h"
 #include "ARCfmt.cpp"
@@ -30,6 +31,15 @@ int main(int argc, char *argv[])
 	// Read image
 	readImage(argv[1], image);
     
+    switch(argv[2]){
+    	case 0:
+    		grayScaleHistogram(image, argv[4]);
+    	case 1:
+    		maxMin(image);
+    	case 2: 
+    		mask(image, argv[4]);
+
+    }
 	// Print menu
 	while(0 <= choice && choice < 5)
 	{
@@ -139,6 +149,161 @@ int readImage(char filename[], Image& image)
     	return (1);
 }
 
+void grayScaleHistogram(Image image, int intervals){
+	//Algo for grayscaling histogram
+	//Create a histogram array for number of intervals (will place result in this array)
+	int[] hist = new int[intervals];
+	//initialising hist
+	for(int i = 0; i < hist.length; i++){
+		hist[i] = 0;
+	}
+	
+	double gs = 0;
+	int position;
+	for(int i =0; i < image.height *image.width; i++){
+		//gs formula
+		gs = (double)image.red_data[i]*.3 + (double)image.blue_data[i+size]*.59 + (double)image.green_data[i+size*2];
+		//determining position for pixel
+		position = (int)((double)(gs)*intervals/256.0);
+		hist[position] = hist[position] + 1;
+	}
+	// TODO: Output to a text file
+	std::fstream outputFile("result.txt");
+	for(int i = 0; hist.length; i++)
+	{
+		outputFile << hist[i] + " ";
+	}
+	outputFile.close();
+}
+
+void maxMin (Image image)
+{
+	int[] result = new int[6];
+	int maxR, maxB, maxG = 0;
+	int minR, minB, minG = 0;
+	int size = image.height*image.width;
+
+	for (i = 0; i < size; i++)
+	{
+		if(image.red_data[i] > maxR)
+			maxR = image.red_data[i];
+
+		if(image.red_data[i] < minR)
+			minR = image.red_data[i];
+
+		if(image.blue_data[i+size] > maxB)
+			maxB = image.blue_data[i];
+
+		if(image.blue_data[i+size] < minB)
+			minB = image.blue_data[i];
+
+		if(image.green_data[i+size*2] > maxG)
+			maxG = image.green_data[i];
+
+		if(image.red_data[i+size*2] < minG)
+			minG = image.green_data[i];
+	}
+	result[0] = maxR;
+	result[1] = minR;
+	result[2] = maxG;
+	result[3] = minG;
+	result[4] = maxB;
+	result[5] = minB;
+
+	// TODO: Output to a text file
+	std::fstream outputFile("result.txt");
+	for(int i = 0; result.length; i++)
+	{
+		outputFile << result[i] + " " ;
+	}
+	outputFile.close();
+}
+}
+Image mask(Image image, String file)
+{
+
+	std::fstream myfile(file, std::ios_base::in);
+	short a;
+	int i = 0;
+	int size = image.height * image.width;
+	// reads each short and stores in a
+	while(myfile >> a && i < size)
+	{
+		if(a == 0)
+		{
+			image.red_data[i] = 0;
+			image.blue_data[i + size] = 0;
+			image.green_data[i + size*2] = 0;
+		}
+		i++;
+	}
+	return image;
+
+}
+
+Image rotate(Image image, double deags)
+{
+	double pi = 3.1415926535897;
+	double radians = pi*deags/180;
+	int[] center = new int[2];
+	
+	center[0] = image.width/2;
+	center[1] = image.height/2;
+	
+	int size = image.height * image.width;
+	unsigned char[] red_data = new char[size];
+	unsigned char[] blue_data = new char[size];
+	unsigned char[] green_data = new char[size];
+	Image result = new Image(image.height,image.width);
+	int xi, yi, xf, yf;
+	
+	for (k = 0; k < size; k++)
+    {
+    	xi = k % image.width - width/2;
+    	yi = k / image.width - height/2;
+
+    	xf = cos(radians) * xi - sin(radians) * yi;
+    	yf = sin(radians) * xi + cos(radians) * yi;
+
+    	result.red_data[xf+center[0] + (yf + center[0])*image.width]  = image.red_data[k]; 
+    	result.blue_data[xf+center[0] + (yf + center[0])*image.width]  = image.blue_data[k]; 
+    	result.green_data[xf+center[0] + (yf + center[0])*image.width]  = image.green_data[k]; 
+
+    }  
+    return result;
+
+}
+Image selectGray(Image image, double radius)
+{
+	int[] center = new int[2];
+	
+	center[0] = image.width/2;
+	center[1] = image.height/2;
+
+	int yL = center[1] - radius;
+	int yF = center[1] + radius;
+	int xL = center[0] - radius;
+	int xF = center[0] + radius;
+	int curr = xf+center[0] + (yf + center[0])*image.width;
+	while(yL <= yF)
+	{
+		while(xL <= xF)
+		{
+			if((xL - center[0])^2 _+ (yL - center[1]) < radius*radius){
+				image.red_data[xL+center[0] + (yL + center[0])*image.width] = floor((double)image.red_data[xL+center[0] + (yL + center[0])*image.width]  * .3);
+				image.blue_data[xL+center[0] + (yL + center[0])*image.width] = floor((double)image.blue_data[xL+center[0] + (yL + center[0])*image.width]  * .11);
+				image.green_data[xL+center[0] + (yL + center[0])*image.width] = floor((double)image.green_data[xL+center[0] + (yL + center[0])*image.width]  * .59);
+			}
+			xL++;
+		}
+		yL++;
+	}
+	return image;
+}
+
+
+
+
 
 int readImageHeader(char filename[], int& H, int& W)
 {
@@ -177,6 +342,7 @@ int readImageHeader(char filename[], int& H, int& W)
 	cout << "close" << endl;
     	return(1);
 }
+
 
 int writeImage(char filename[], Image& image)
 {
