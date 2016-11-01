@@ -5,21 +5,6 @@
 using namespace std;
 
 // Create an empty image
-class Image {
-public:
-	int height;
-	int width;
-	unsigned char[] red_data;
-	unsigned char[] blue_data;
-	unsigned char[] green_data;
-
-	void setPixelValue(int position, unsigned char red_value, unsigned char green_value, unsigned char blue_value);
-	void setRedPixelValue(int position, unsigned char red_value);
-    void setGreenPixelValue(int position, unsigned char green_value);
-    void setBluePixelValue(int position, unsigned char blue_value);
-
-
-}
 Image::Image()
 {
 	H = 0;
@@ -27,7 +12,6 @@ Image::Image()
     red_data = NULL;
 	green_data = NULL;
 	blue_data = NULL;
-
 }
 
 // Create an black image of size height*width
@@ -113,9 +97,44 @@ void Image::setBluePixelValue(int position, unsigned char blue_value)
 	cout << "That position doesn't exist" << endl;
 }
 
-// TODO
-void Image::rotateImage(int angle)
+int *Image::computeMaxMin()
 {
-   
+	int size = H*W;	
+	static int output[6] = {0,255,0,255,0,255};
+	for (int i=0;i<size;i++)
+	{
+		if(red_data[i]>output[0])
+		{
+			output[0]=red_data[i];
+		}
+		if(red_data[i]<output[1])
+		{
+			output[1]=red_data[i];
+		}
+	}
+	for (int i=0;i<size;i++)
+	{
+		if(green_data[i]>output[2])
+		{
+			output[2]=green_data[i];
+		}
+		if(green_data[i]<output[3])
+		{
+			output[3]=green_data[i];
+		}
+	}
+	for (int i=0;i<size;i++)
+	{
+		if(blue_data[i]>output[4])
+		{
+			output[4]=blue_data[i];
+		}
+		if(blue_data[i]<output[5])
+		{
+			output[5]=blue_data[i];
+		}
+	}
+	return output;
+
 }
 

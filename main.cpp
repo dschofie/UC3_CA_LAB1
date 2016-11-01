@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
     		maxMin(image);
     	case 2: 
     		mask(image, argv[4]);
+    	case 3:
 
     }
 	// Print menu
