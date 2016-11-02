@@ -554,93 +554,44 @@ int turnSelectionToGreyscale(char filename[], int radius, Image& image)
     return(1);
 }
 
-int rotate(char filename[], int angle, Image& image)
+int rotate(char filename[], int deags, Image& image)
 {
 	int H = image.H, W = image.W;
 	int size = H*W;
-	float radians = (angle * 3.14159265) / 180.0;
-	int centerAH = H/2-1;
-	int centerAW = W/2-1;
-	int centerBH = H/2-1;
-	int centerBW = W/2;
-	int centerCH = H/2;
-	int centerCW = W/2-1;
-	int centerDH = H/2;
-	int centerDW = W/2;
-	/*cout << centerAH << " " << centerAW << endl;
-	cout << centerBH << " " << centerBW << endl;
-	cout << centerCH << " " << centerCW << endl;
-	cout << centerDH << " " << centerDW << endl;*/
-	int posH = 0;
-	int posW = 0;
-	int pixelX[size];
-	int pixelY[size];
-	Image rotImage(H, W);
 
-	if ((H*W)%2==0)
-	{
-		for (int i=0;i<size;i++)
-		{
-			posH = i/W;
-			posW = i%W;
-			int distanceH = centerDH-posH;
-			int distanceW = centerDW-posW;
-			if ((posW > centerAW)&&(posH > centerAH))
-			{
-				distanceH = centerAH-posH;
-				distanceW = centerAW-posW;
-				pixelX[i] = (int) ceil((cos(radians) * distanceW) - (sin(radians) * distanceH));
-				pixelY[i] = (int) ceil((sin(radians) * distanceW) + (cos(radians) * distanceH));
-			}
-			if ((posW < centerBW)&&(posH > centerBH))
-			{
-				distanceH = centerBH-posH;
-				distanceW = centerBW-posW;
-				pixelX[i] = (int) ceil((cos(radians) * distanceW) - (sin(radians) * distanceH));
-				pixelY[i] = (int) ceil((sin(radians) * distanceW) + (cos(radians) * distanceH));
-			}
-			if ((posW > centerCW)&&(posH < centerCH))
-			{
-				distanceH = centerCH-posH;
-				distanceW = centerCW-posW;
-				pixelX[i] = (int) ceil((cos(radians) * distanceW) - (sin(radians) * distanceH));
-				pixelY[i] = (int) ceil((sin(radians) * distanceW) + (cos(radians) * distanceH));
-			}
-			if ((posW < centerDW)&&(posH < centerDH))
-			{
-				pixelX[i] = (int) ceil((cos(radians) * distanceW) - (sin(radians) * distanceH));
-				pixelY[i] = (int) ceil((sin(radians) * distanceW) + (cos(radians) * distanceH));
-			}
-		}
-	} else
-	{
-		for (int i=0;i<size;i++)
-		{
-			posH = i/W;
-			posW = i%W;
-			int distanceH = centerDH-posH;
-			int distanceW = centerDW-posW;
-			pixelX[i] = (int) ceil((cos(radians) * distanceW) - (sin(radians) * distanceH));
-			pixelY[i] = (int) ceil((sin(radians) * distanceW) + (cos(radians) * distanceH));
-		}
-	}
-	
+	Image result(H, W);
 
-	for (int i=0;i<size;i++)
-	{
-		posH = i/W;
-		posW = i%W;
-		int posX = pixelX[i];
-		int posY = pixelY[i];
-		if (0 <= posX && posX < W && 0 <= posY && posY < H)
-		{
-			rotImage.red_data[posY*W+posX] = image.red_data[i];
-			rotImage.green_data[posY*W+posX] = image.green_data[i];
-			rotImage.blue_data[posY*W+posX] = image.blue_data[i];
-		}	
-	}
+	double pi = 3.1415926535897;
+	double radians = pi*(double)deags/180;
+	int center[2];
+	cout << "Radians: " << radians << endl;
+	center[0] = image.W/2;
+	center[1] = image.H/2;
 
-	writeImage(filename, rotImage);
+	int xi, yi, xf, yf;
+	// result.red_data = image.red_data;
+	// result.blue_data = image.blue_data;
+	// result.green_data = result.green_data;
+
+	for (int k = 0; k < size; k++)
+    {
+    	xi = k % image.W - W/2;
+    	yi = k / image.H - H/2;
+
+    	xf = cos(radians) * xi - sin(radians) * yi;
+    	yf = sin(radians) * xi + cos(radians) * yi;
+
+    	// result.red_data[k]  = image.red_data[xf+center[0] + (yf + center[1])*image.W]; 
+    	// result.blue_data[k]  = image.blue_data[xf+center[0] + (yf + center[1])*image.W]; 
+    	// result.green_data[k]  = image.green_data[xf+center[0] + (yf + center[1])*image.W]; 
+
+    	result.red_data[xf+center[0] + (yf + center[1])*image.W]  = image.red_data[k]; 
+    	result.blue_data[xf+center[0] + (yf + center[1])*image.W]  = image.blue_data[k]; 
+    	result.green_data[xf+center[0] + (yf + center[1])*image.W]  = image.green_data[k]]; 
+
+    }  
+
+	writeImage(filename, result);
 
     	return(1);
 }
